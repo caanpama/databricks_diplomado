@@ -1,0 +1,29 @@
+# Celda 1: Leer datos desde las APIs
+import requests
+
+url_secop = "https://www.datos.gov.co/resource/rpmr-utcd.csv"
+url_men = "https://www.datos.gov.co/resource/nudc-7mev.csv"
+
+# Descargar los archivos CSV
+response_secop = requests.get(url_secop)
+response_men = requests.get(url_men)
+
+# Guardar los archivos CSV localmente
+with open("/tmp/secop.csv", "wb") as file:
+    file.write(response_secop.content)
+
+with open("/tmp/men.csv", "wb") as file:
+    file.write(response_men.content)
+
+# Usamos spark.read para ingerir los datos.
+# option("header", "true") indica que la primera fila contiene los nombres de las columnas.
+# option("inferSchema", "true") le pide a Spark que adivine el tipo de cada columna.
+df_secop = spark.read.format("csv").option("header", "true").option("inferSchema", "true").load("/tmp/secop.csv")
+df_men = spark.read.format("csv").option("header", "true").option("inferSchema", "true").load("/tmp/men.csv")
+
+# display() es un comando especial de Databricks para una visualización interactiva.
+print("Datos del SECOP cargados:")
+display(df_secop)
+
+print("Datos del MEN cargados:")
+display(df_men)
